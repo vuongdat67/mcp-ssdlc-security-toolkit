@@ -150,8 +150,25 @@ function shouldIgnore(filePath: string, patterns: string[]): boolean {
   return false;
 }
 
-function safeExec(command: string): string | null {
+// Whitelist of allowed diagnostic commands - prevents command injection
+const SAFE_COMMANDS = {
+  'node-version': 'node --version',
+  'npm-version': 'npm --version',
+  'pnpm-version': 'pnpm --version',
+  'python-version': 'python --version',
+  'python3-version': 'python3 --version',
+  'git-version': 'git --version',
+  'git-user-name': 'git config user.name',
+  'git-user-email': 'git config user.email',
+  'corepack-version': 'corepack --version',
+} as const;
+
+type SafeCommandKey = keyof typeof SAFE_COMMANDS;
+
+function safeExec(commandKey: SafeCommandKey): string | null {
   try {
+    // Only execute whitelisted commands - not user-controllable
+    const command = SAFE_COMMANDS[commandKey];
     return execSync(command, { encoding: 'utf-8', timeout: 5000 }).trim();
   } catch {
     return null;
@@ -336,11 +353,11 @@ export async function workspaceSnapshot(
     const osType = getOS();
     
     return {
-      nodeVersion: safeExec('node --version') || undefined,
-      npmVersion: safeExec('npm --version') || undefined,
-      pnpmVersion: safeExec('pnpm --version') || undefined,
-      pythonVersion: safeExec('python --version') || safeExec('python3 --version') || undefined,
-      gitVersion: safeExec('git --version') || undefined,
+      nodeVersion: safeExec('node-version') || undefined,
+      npmVersion: safeExec('npm-version') || undefined,
+      pnpmVersion: safeExec('pnpm-version') || undefined,
+      pythonVersion: safeExec('python-version') || safeExec('python3-version') || undefined,
+      gitVersion: safeExec('git-version') || undefined,
       shell: process.env.SHELL || process.env.COMSPEC || 'unknown',
       path: (process.env.PATH || '').split(osType === 'windows' ? ';' : ':').slice(0, 10),
       cwd: process.cwd(),
@@ -376,7 +393,7 @@ export async function environmentDiagnostics(
   
   // Node diagnostics
   if (categories.includes('node')) {
-    const nodeVersion = safeExec('node --version');
+    const nodeVersion = safeExec('node-version');
     if (nodeVersion) {
       const major = parseInt(nodeVersion.replace('v', '').split('.')[0]);
       results.push({
@@ -396,7 +413,7 @@ export async function environmentDiagnostics(
     }
     
     // Check pnpm
-    const pnpmVersion = safeExec('pnpm --version');
+    const pnpmVersion = safeExec('pnpm-version');
     if (pnpmVersion) {
       results.push({
         category: 'node',
@@ -408,7 +425,7 @@ export async function environmentDiagnostics(
   
   // Git diagnostics
   if (categories.includes('git')) {
-    const gitVersion = safeExec('git --version');
+    const gitVersion = safeExec('git-version');
     if (gitVersion) {
       results.push({
         category: 'git',
@@ -417,8 +434,8 @@ export async function environmentDiagnostics(
       });
       
       // Check git config
-      const userName = safeExec('git config user.name');
-      const userEmail = safeExec('git config user.email');
+      const userName = safeExec('git-user-name');
+      const userEmail = safeExec('git-user-email');
       
       if (!userName || !userEmail) {
         results.push({
@@ -440,7 +457,7 @@ export async function environmentDiagnostics(
   
   // Python diagnostics
   if (categories.includes('python')) {
-    const pythonVersion = safeExec('python --version') || safeExec('python3 --version');
+    const pythonVersion = safeExec('python-version') || safeExec('python3-version');
     if (pythonVersion) {
       results.push({
         category: 'python',
@@ -592,7 +609,7 @@ export async function runDiagnosticPlaybook(
         osType === 'windows' ? 'where node' : 'which node',
       );
       
-      const nodeV = safeExec('node --version');
+      const nodeV = safeExec('node-version');
       results.push({
         category: 'node-setup',
         status: nodeV ? 'ok' : 'error',
@@ -601,7 +618,7 @@ export async function runDiagnosticPlaybook(
       });
       
       // Check corepack
-      const corepack = safeExec('corepack --version');
+      const corepack = safeExec('corepack-version');
       if (!corepack) {
         results.push({
           category: 'node-setup',

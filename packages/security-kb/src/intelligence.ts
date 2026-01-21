@@ -148,7 +148,7 @@ export class SecurityIntelligence {
     const params: any[] = [normalizedCweId];
 
     if (minSeverity) {
-      const severityMap = { 'LOW': 1, 'MEDIUM': 2, 'HIGH': 3, 'CRITICAL': 4 };
+      const severityMap = { 'NONE': 0, 'LOW': 1, 'MEDIUM': 2, 'HIGH': 3, 'CRITICAL': 4 };
       const severityLevel = severityMap[minSeverity];
       conditions.push(`(
         CASE c.severity
