@@ -15,6 +15,7 @@ const logger = createLogger("ba-analyze-requirements");
 
 // Input validation schema
 const AnalyzeRequirementsSchema = z.object({
+  project_name: z.string().optional(),
   project_description: z.string().min(10, "Project description too short"),
   stakeholders: z.array(z.string()).min(1, "At least one stakeholder required"),
   business_goals: z.array(z.string()).min(1, "At least one business goal required"),
@@ -103,12 +104,21 @@ function extractFeatures(description: string): Array<{
   }> = [];
 
   // Common security project patterns
-  if (description.toLowerCase().includes("authentication")) {
+  if (description.toLowerCase().includes("authentication") || description.toLowerCase().includes("oauth")) {
     features.push({
       title: "User Authentication",
       action: "securely authenticate using credentials",
       benefit: "I can access protected resources safely",
       actor: "user",
+    });
+  }
+
+  if (description.toLowerCase().includes("oauth") || description.toLowerCase().includes("token")) {
+    features.push({
+      title: "OAuth2/Token Management",
+      action: "obtain and manage secure access tokens",
+      benefit: "API access is authorized and controlled",
+      actor: "client application",
     });
   }
 
@@ -362,7 +372,7 @@ export async function baAnalyzeRequirements(args: unknown) {
     );
 
     const output: AnalyzeRequirementsOutput = {
-      project_name: extractProjectName(input.project_description),
+      project_name: input.project_name || extractProjectName(input.project_description),
       timestamp: new Date().toISOString(),
       user_stories: userStories,
       prioritization_matrix,

@@ -3,7 +3,7 @@
     "ssdlc-planner": {
       "command": "node",
       "args": [
-        "D:\\source\\mcp-ssdlc-security-toolkit\\packages\\ssdlc-planner\\dist\\index.js"
+        "D:\\source\\v1\\lastest\\packages\\ssdlc-planner\\dist\\index.js"
       ],
       "env": {
         "NODE_ENV": "development"

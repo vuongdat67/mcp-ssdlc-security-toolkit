@@ -45,7 +45,7 @@ describe('SSDLC Orchestration Workflow Tests', () => {
       expect(phase2.phase_number).toBe(2);
       expect(phase2.tool_name).toBe('techlead_design_architecture');
       expect(phase2.depends_on).toEqual(['Phase 1']);
-      expect(phase2.tool_input.user_stories).toContain('{{PHASE_1_OUTPUT.user_stories}}');
+      expect(phase2.tool_input.requirements).toContain('{{PHASE_1_OUTPUT.user_stories}}');
       
       // Validate Phase 3 (Threat Model) depends on Phase 2
       const phase3 = plan.phases[2];
@@ -363,8 +363,8 @@ describe('SSDLC Orchestration Workflow Tests', () => {
         'techlead_design_architecture',
         'security_threat_model',
         'techlead_generate_pseudocode',
-        'qa_design_test_strategy',
-        'devops_generate_pipeline',
+        'qa_generate_test_cases',
+        'devops_design_cicd',
         'pm_create_sprint_plan'
       ];
       

@@ -1,0 +1,305 @@
+# API Security Domain
+# Version: 1.0.0
+# For REST APIs, GraphQL, gRPC
+
+id: api-security
+name: API Security
+version: "1.0.0"
+description: |
+  Security domain for API development including REST, GraphQL, and gRPC.
+  Covers authentication, authorization, rate limiting, and data exposure risks.
+
+tags:
+  - api
+  - rest
+  - graphql
+  - grpc
+  - microservices
+  - backend
+
+languages:
+  - javascript
+  - typescript
+  - python
+  - go
+  - java
+  - csharp
+  - rust
+
+frameworks:
+  - Express
+  - Fastify
+  - NestJS
+  - FastAPI
+  - Flask
+  - Django REST Framework
+  - Spring Boot
+  - ASP.NET Core
+  - Gin
+  - Echo
+
+complianceStandards:
+  - SOC2
+  - GDPR
+  - PCI-DSS
+  - HIPAA
+
+threatCategories:
+  - id: broken-auth
+    name: Broken Authentication
+    description: API authentication weaknesses
+    strideCategory: Spoofing
+    threats:
+      - id: jwt-weak-secret
+        name: Weak JWT Secret
+        description: Using weak or predictable secrets for JWT signing
+        cweIds:
+          - CWE-798
+          - CWE-326
+        owaspCategories:
+          - A07:2021
+        severity: CRITICAL
+        likelihood: MEDIUM
+        patterns:
+          - regex: "jwt\\.sign\\s*\\([^,]+,\\s*['\"][^'\"]{1,20}['\"]"
+            language: javascript
+            confidence: 85
+            riskScore: 9
+          - regex: "SECRET_KEY\\s*=\\s*['\"][^'\"]{1,20}['\"]"
+            language: python
+            confidence: 80
+            riskScore: 8
+        mitigations:
+          - phase: Implementation
+            description: Use strong, random secrets (256+ bits)
+          - phase: Architecture
+            description: Use asymmetric keys (RS256, ES256) for JWT
+
+      - id: api-key-exposure
+        name: API Key Exposure
+        description: Hardcoded API keys in source code
+        cweIds:
+          - CWE-798
+        owaspCategories:
+          - A07:2021
+        severity: HIGH
+        likelihood: HIGH
+        patterns:
+          - regex: "(api[_-]?key|apikey|api_secret)\\s*[=:]\\s*['\"][a-zA-Z0-9]{20,}['\"]"
+            language: any
+            confidence: 90
+            riskScore: 8
+        mitigations:
+          - phase: Implementation
+            description: Use environment variables or secrets management
+
+  - id: broken-authorization
+    name: Broken Object Level Authorization
+    description: Missing or improper authorization checks
+    strideCategory: ElevationOfPrivilege
+    threats:
+      - id: bola
+        name: BOLA (Broken Object Level Authorization)
+        description: Accessing other users' resources by manipulating IDs
+        cweIds:
+          - CWE-639
+          - CWE-284
+        owaspCategories:
+          - A01:2021
+        severity: HIGH
+        likelihood: HIGH
+        patterns:
+          - regex: "params\\.(id|userId|orderId).*(?:find|get|update|delete)"
+            language: any
+            confidence: 60
+            riskScore: 7
+        mitigations:
+          - phase: Architecture
+            description: Implement resource ownership verification at service layer
+          - phase: Testing
+            description: Test all endpoints with different user contexts
+
+      - id: bfla
+        name: BFLA (Broken Function Level Authorization)
+        description: Accessing admin functions without proper role checks
+        cweIds:
+          - CWE-285
+        owaspCategories:
+          - A01:2021
+        severity: CRITICAL
+        likelihood: MEDIUM
+        patterns:
+          - regex: "(?:admin|internal|private).*(?:router|endpoint|handler).*(?!auth|guard)"
+            language: any
+            confidence: 50
+            riskScore: 8
+        mitigations:
+          - phase: Architecture
+            description: Implement RBAC with deny-by-default
+          - phase: Implementation
+            description: Use middleware/decorators for authorization checks
+
+  - id: data-exposure
+    name: Excessive Data Exposure
+    description: APIs returning more data than needed
+    strideCategory: InformationDisclosure
+    threats:
+      - id: mass-assignment
+        name: Mass Assignment
+        description: Binding request data directly to database models
+        cweIds:
+          - CWE-915
+        owaspCategories:
+          - A04:2021
+        severity: HIGH
+        likelihood: MEDIUM
+        patterns:
+          - regex: "Object\\.assign\\s*\\([^,]+,\\s*req\\.body"
+            language: javascript
+            confidence: 80
+            riskScore: 7
+          - regex: "\\.update\\s*\\(\\s*\\{\\s*\\.\\.\\.*req\\.body"
+            language: javascript
+            confidence: 85
+            riskScore: 8
+          - regex: "\\*\\*request\\.(?:json|data)"
+            language: python
+            confidence: 75
+            riskScore: 7
+        mitigations:
+          - phase: Implementation
+            description: Use DTOs or allowlisting for request binding
+
+      - id: sensitive-data-response
+        name: Sensitive Data in Response
+        description: Returning passwords, tokens, or PII in API responses
+        cweIds:
+          - CWE-200
+          - CWE-312
+        owaspCategories:
+          - A01:2021
+        severity: HIGH
+        likelihood: HIGH
+        patterns:
+          - regex: "res\\.(?:json|send)\\s*\\(.*(?:password|secret|token|ssn|credit)"
+            language: javascript
+            confidence: 70
+            riskScore: 7
+        mitigations:
+          - phase: Implementation
+            description: Use response serializers to filter sensitive fields
+
+  - id: rate-limiting
+    name: Lack of Rate Limiting
+    description: APIs without request throttling
+    strideCategory: DenialOfService
+    threats:
+      - id: no-rate-limit
+        name: Missing Rate Limiting
+        description: Endpoints vulnerable to brute force or abuse
+        cweIds:
+          - CWE-770
+        owaspCategories:
+          - A04:2021
+        severity: MEDIUM
+        likelihood: HIGH
+        patterns: []
+        mitigations:
+          - phase: Architecture
+            description: Implement rate limiting at API gateway
+          - phase: Implementation
+            description: Use libraries like express-rate-limit, slowapi
+
+  - id: graphql-specific
+    name: GraphQL Specific Vulnerabilities
+    description: Security issues unique to GraphQL APIs
+    strideCategory: InformationDisclosure
+    threats:
+      - id: introspection-enabled
+        name: Introspection in Production
+        description: GraphQL introspection exposing schema in production
+        cweIds:
+          - CWE-200
+        owaspCategories:
+          - A01:2021
+        severity: MEDIUM
+        likelihood: HIGH
+        patterns:
+          - regex: "introspection\\s*:\\s*true"
+            language: any
+            confidence: 90
+            riskScore: 5
+        mitigations:
+          - phase: Deployment
+            description: Disable introspection in production
+
+      - id: query-depth
+        name: Deep Query Attack
+        description: Nested queries causing resource exhaustion
+        cweIds:
+          - CWE-400
+        owaspCategories:
+          - A04:2021
+        severity: MEDIUM
+        likelihood: MEDIUM
+        patterns: []
+        mitigations:
+          - phase: Implementation
+            description: Implement query depth limiting and complexity analysis
+
+securityControls:
+  - id: oauth2
+    name: OAuth 2.0 / OpenID Connect
+    description: Industry-standard authorization framework
+    category: Preventive
+    implementation: |
+      Use OAuth 2.0 with PKCE for public clients.
+      Implement proper token rotation and revocation.
+
+  - id: api-gateway
+    name: API Gateway
+    description: Centralized API security controls
+    category: Preventive
+    implementation: |
+      Deploy API gateway (Kong, AWS API Gateway, Apigee) with:
+      - Authentication/Authorization
+      - Rate limiting
+      - Request validation
+      - Logging
+
+  - id: input-validation
+    name: Schema Validation
+    description: Validate all API inputs against schemas
+    category: Preventive
+    implementation: |
+      Use JSON Schema, Zod, or class-validator for input validation.
+      Reject requests that don't match expected schema.
+
+testingGuidelines:
+  - category: Authentication Testing
+    testCases:
+      - Test JWT validation with invalid signatures
+      - Test token expiration handling
+      - Test refresh token rotation
+    tools:
+      - jwt_tool
+      - Burp Suite JWT Editor
+
+  - category: Authorization Testing
+    testCases:
+      - Test BOLA by changing resource IDs
+      - Test BFLA by accessing admin endpoints as regular user
+      - Test horizontal and vertical privilege escalation
+    tools:
+      - Autorize
+      - AuthMatrix
+      - Postman
+
+  - category: Rate Limiting Testing
+    testCases:
+      - Test rate limit thresholds
+      - Test bypass techniques (IP rotation, header manipulation)
+    tools:
+      - Siege
+      - Apache JMeter
+      - wrk

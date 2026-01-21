@@ -1,0 +1,53 @@
+# Docker ignore file
+# Exclude files not needed in container
+
+# Dependencies (will be installed in container)
+node_modules/
+**/node_modules/
+
+# Build outputs (rebuilt in container)
+dist/
+**/dist/
+build/
+**/build/
+
+# Development files
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+.cursor/
+.gemini/
+
+# Documentation
+docs/
+*.md
+!README.md
+claude_logs/
+
+# Test files (except for test stage)
+**/*.test.ts
+**/__tests__/
+coverage/
+
+# Raw data and temporary files
+raw/
+*.log
+*.db
+*.db-journal
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Miscellaneous
+scan.py
+scan.txt
+*.zip
+*.tar.gz

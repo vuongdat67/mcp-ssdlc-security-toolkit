@@ -21,6 +21,7 @@ import { registerSecurityTools } from "./tools/security.js";
 import { registerQATools } from "./tools/qa.js";
 import { registerDevOpsTools } from "./tools/devops.js";
 import { registerProjectManagementTools } from "./tools/project-management.js";
+import { registerCodingTools } from "./tools/coding.js";
 import { orchestrateSSDLCPipeline } from "./tools/orchestration/orchestrate-pipeline-v2.js";
 
 const logger = createLogger("MCP-SSDLC-Planner");
@@ -52,6 +53,7 @@ async function main(): Promise<void> {
   registerQATools(tools);
   registerDevOpsTools(tools);
   registerProjectManagementTools(tools);
+  registerCodingTools(tools);
 
   // Register orchestration tool (v2 - plan generator)
   tools.set("orchestrate_ssdlc_pipeline", async (input: unknown) => {
@@ -149,6 +151,10 @@ function getToolDescription(name: string): string {
     devops_design_cicd: "DevOps Engineer designs CI/CD pipeline with security gates",
     pm_create_sprint_plan: "Project Manager creates sprint planning",
     orchestrate_ssdlc_pipeline: "Orchestrate full SSDLC pipeline: BA → Tech Lead → Security → QA → PM → DevOps",
+    // Coding support tools
+    generate_secure_code: "Generate secure code implementation from requirements with security patterns",
+    review_file: "Review an entire file for security vulnerabilities with line-by-line analysis",
+    suggest_fix: "Generate fix suggestions for security vulnerabilities with code examples",
   };
 
   return descriptions[name] || "No description available";
@@ -252,7 +258,11 @@ function getToolInputSchema(name: string): object {
         project_name: { type: "string", description: "Name of the project" },
         sprint_duration: { type: "number", description: "Sprint duration in weeks (1-4, default: 2)" },
         team_size: { type: "number", description: "Team size (default: 5)" },
-        user_stories: { type: "array", items: { type: "object" }, description: "User stories with id, title, priority, story_points" },
+        user_stories: { 
+          type: "array", 
+          items: { type: "object" }, 
+          description: "User stories with id, title, priority (P0/P1/P2/P3 or High/Medium/Low/Critical), story_points" 
+        },
         team_velocity: { type: "number", description: "Story points per sprint (optional)" },
       },
       required: [],

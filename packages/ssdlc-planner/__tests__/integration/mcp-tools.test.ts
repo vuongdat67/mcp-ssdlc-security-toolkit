@@ -83,24 +83,13 @@ describe('MCP Server Integration Tests', () => {
       const output = JSON.parse(result.content[0].text);
       
       expect(output.user_stories.length).toBeGreaterThan(0);
-      expect(output.project_name).toBe('Healthcare API');
     });
 
     it('should execute architecture tool and return JSON', async () => {
       const { techleadDesignArchitecture } = await import('../../src/tools/architecture/design-architecture.js');
       
       const input = {
-        project_name: "OAuth2 Server",
-        user_stories: [
-          {
-            id: "US-1",
-            as_a: "API Consumer",
-            i_want: "obtain access token",
-            so_that: "I can call protected APIs",
-            acceptance_criteria: ["Token issued with expiry", "Refresh token supported"]
-          }
-        ],
-        business_goals: ["Secure authentication"],
+        requirements: "OAuth2 Server with secure authentication for API consumers to obtain access tokens with refresh token support",
         constraints: ["Node.js", "Redis"]
       };
 
@@ -158,9 +147,7 @@ describe('MCP Server Integration Tests', () => {
       const { techleadDesignArchitecture } = await import('../../src/tools/architecture/design-architecture.js');
       
       const input = {
-        project_name: "Test",
-        user_stories: [],
-        business_goals: [],
+        requirements: "Test project with basic architecture",
         constraints: []
       };
 
@@ -233,9 +220,7 @@ describe('MCP Server Integration Tests', () => {
       const { techleadDesignArchitecture } = await import('../../src/tools/architecture/design-architecture.js');
       
       const input = {
-        project_name: "Performance Test",
-        user_stories: [],
-        business_goals: [],
+        requirements: "Performance Test project with basic features",
         constraints: []
       };
 

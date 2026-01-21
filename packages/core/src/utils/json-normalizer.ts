@@ -46,9 +46,15 @@ export function normalizeJSON(raw: string, context: string = 'input'): string {
     // Must be careful not to replace backticks inside already-quoted strings
     normalized = normalized.replace(/`([^`]*)`/g, '"$1"');
     
-    // Step 3: Replace single quotes with double quotes (property names)
-    // Pattern: 'key': → "key":
+    // Step 3: Replace single quotes with double quotes
+    // First, handle property names: 'key': → "key":
     normalized = normalized.replace(/'([^']*)'(\s*:)/g, '"$1"$2');
+    // Then, handle string values in arrays: ['value'] → ["value"]
+    normalized = normalized.replace(/\[\s*'([^']*)'/g, '["$1"');
+    normalized = normalized.replace(/,\s*'([^']*)'/g, ', "$1"');
+    normalized = normalized.replace(/'([^']*)'\s*\]/g, '"$1"]');
+    // Handle remaining single-quoted strings after : (values)
+    normalized = normalized.replace(/:\s*'([^']*)'/g, ': "$1"');
     
     // Step 4: Remove trailing commas before } or ]
     normalized = normalized.replace(/,(\s*[}\]])/g, '$1');

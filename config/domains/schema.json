@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mcp-ssdlc.dev/schemas/domain.json",
+  "title": "Security Domain Definition",
+  "description": "Schema for defining security domains with threat patterns and mitigations",
+  "type": "object",
+  "required": ["id", "name", "version", "threatCategories"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier for the domain (kebab-case)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the domain"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the domain definition"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the security domain"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags for categorization and search"
+    },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Programming languages applicable to this domain"
+    },
+    "frameworks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Frameworks commonly used in this domain"
+    },
+    "complianceStandards": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["PCI-DSS", "HIPAA", "GDPR", "SOC2", "ISO27001", "NIST", "FedRAMP", "CCPA"]
+      },
+      "description": "Applicable compliance standards"
+    },
+    "threatCategories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "threats"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "strideCategory": {
+            "type": "string",
+            "enum": ["Spoofing", "Tampering", "Repudiation", "InformationDisclosure", "DenialOfService", "ElevationOfPrivilege"]
+          },
+          "threats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "name", "cweIds"],
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "cweIds": {
+                  "type": "array",
+                  "items": { "type": "string", "pattern": "^CWE-\\d+$" }
+                },
+                "owaspCategories": {
+                  "type": "array",
+                  "items": { "type": "string", "pattern": "^A\\d{2}:\\d{4}$" }
+                },
+                "patterns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["regex", "language"],
+                    "properties": {
+                      "regex": { "type": "string" },
+                      "language": { "type": "string" },
+                      "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+                      "riskScore": { "type": "number", "minimum": 0, "maximum": 10 }
+                    }
+                  }
+                },
+                "mitigations": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["description"],
+                    "properties": {
+                      "phase": { 
+                        "type": "string",
+                        "enum": ["Architecture", "Design", "Implementation", "Testing", "Deployment"]
+                      },
+                      "description": { "type": "string" },
+                      "codeExample": {
+                        "type": "object",
+                        "properties": {
+                          "language": { "type": "string" },
+                          "insecure": { "type": "string" },
+                          "secure": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]
+                },
+                "likelihood": {
+                  "type": "string",
+                  "enum": ["HIGH", "MEDIUM", "LOW"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securityControls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["Preventive", "Detective", "Corrective", "Compensating"]
+          },
+          "implementation": { "type": "string" }
+        }
+      }
+    },
+    "testingGuidelines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string" },
+          "testCases": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "tools": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

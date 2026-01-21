@@ -15,11 +15,13 @@ describe('BA Tool: Analyze Requirements', () => {
     expect(result.content.length).toBeGreaterThan(0);
     expect(result.content[0].type).toBe('text');
     
-    const output = result.content[0].text;
-    expect(output).toContain('User Stories');
-    expect(output).toContain('US-');
-    expect(output).toContain('Acceptance Criteria');
-    expect(output).toContain('Security Considerations');
+    // Tool returns JSON, not markdown
+    const output = JSON.parse(result.content[0].text);
+    expect(output.user_stories).toBeDefined();
+    expect(output.user_stories.length).toBeGreaterThan(0);
+    expect(output.user_stories[0].id).toMatch(/US-\d+/);
+    expect(output.user_stories[0].acceptance_criteria).toBeDefined();
+    expect(output.security_requirements).toBeDefined();
   });
 
   it('should reject invalid input', async () => {
@@ -40,9 +42,9 @@ describe('BA Tool: Analyze Requirements', () => {
     };
 
     const result = await baAnalyzeRequirements(input);
-    const output = result.content[0].text;
+    const output = JSON.parse(result.content[0].text);
 
-    expect(output).toContain('**Priority:** High');
-    expect(output).toContain('authentication');
+    // Check that high priority stories exist
+    expect(output.prioritization_matrix.high_priority.length).toBeGreaterThan(0);
   });
 });

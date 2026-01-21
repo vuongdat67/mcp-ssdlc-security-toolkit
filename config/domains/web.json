@@ -1,0 +1,364 @@
+{
+  "id": "web-application",
+  "name": "Web Application Security",
+  "version": "1.0.0",
+  "description": "Security domain for traditional web applications including SPAs, server-rendered apps, and hybrid solutions",
+  "tags": ["web", "frontend", "backend", "fullstack", "spa", "ssr"],
+  "languages": ["javascript", "typescript", "python", "php", "ruby", "java", "csharp", "go"],
+  "frameworks": ["React", "Vue", "Angular", "Next.js", "Django", "Rails", "Express", "ASP.NET", "Spring"],
+  "complianceStandards": ["PCI-DSS", "GDPR", "SOC2"],
+  
+  "threatCategories": [
+    {
+      "id": "injection",
+      "name": "Injection Attacks",
+      "description": "Attacks where untrusted data is sent to an interpreter",
+      "strideCategory": "Tampering",
+      "threats": [
+        {
+          "id": "xss",
+          "name": "Cross-Site Scripting (XSS)",
+          "description": "Injection of malicious scripts into web pages viewed by other users",
+          "cweIds": ["CWE-79"],
+          "owaspCategories": ["A05:2021", "A03:2021"],
+          "severity": "HIGH",
+          "likelihood": "HIGH",
+          "patterns": [
+            {
+              "regex": "innerHTML\\s*=\\s*[^\"'`]*(?:user|input|data|param|query|request)",
+              "language": "javascript",
+              "confidence": 85,
+              "riskScore": 8
+            },
+            {
+              "regex": "document\\.write\\s*\\([^)]*(?:user|input|data|param)",
+              "language": "javascript",
+              "confidence": 90,
+              "riskScore": 8
+            },
+            {
+              "regex": "\\$\\(.*\\)\\.html\\s*\\([^)]*(?:user|input|data|param)",
+              "language": "javascript",
+              "confidence": 80,
+              "riskScore": 7
+            },
+            {
+              "regex": "v-html\\s*=\\s*[\"'][^\"']*(?:user|input|data)",
+              "language": "vue",
+              "confidence": 85,
+              "riskScore": 8
+            },
+            {
+              "regex": "dangerouslySetInnerHTML\\s*=",
+              "language": "react",
+              "confidence": 70,
+              "riskScore": 6
+            }
+          ],
+          "mitigations": [
+            {
+              "phase": "Implementation",
+              "description": "Use context-aware output encoding",
+              "codeExample": {
+                "language": "javascript",
+                "insecure": "element.innerHTML = userInput;",
+                "secure": "element.textContent = userInput;"
+              }
+            },
+            {
+              "phase": "Implementation",
+              "description": "Use Content Security Policy (CSP) headers",
+              "codeExample": {
+                "language": "http",
+                "insecure": "No CSP header",
+                "secure": "Content-Security-Policy: default-src 'self'; script-src 'self'"
+              }
+            },
+            {
+              "phase": "Testing",
+              "description": "Use automated XSS scanners and manual testing with payloads"
+            }
+          ]
+        },
+        {
+          "id": "sql-injection",
+          "name": "SQL Injection",
+          "description": "Insertion of SQL code via user input",
+          "cweIds": ["CWE-89"],
+          "owaspCategories": ["A03:2021"],
+          "severity": "CRITICAL",
+          "likelihood": "MEDIUM",
+          "patterns": [
+            {
+              "regex": "\\bquery\\s*\\(\\s*[\"'`].*\\$\\{?\\w+\\}?",
+              "language": "javascript",
+              "confidence": 85,
+              "riskScore": 9
+            },
+            {
+              "regex": "execute\\s*\\(\\s*f?[\"'].*%s",
+              "language": "python",
+              "confidence": 80,
+              "riskScore": 9
+            },
+            {
+              "regex": "\\+\\s*request\\.(GET|POST|params)\\[",
+              "language": "any",
+              "confidence": 75,
+              "riskScore": 8
+            }
+          ],
+          "mitigations": [
+            {
+              "phase": "Implementation",
+              "description": "Use parameterized queries or prepared statements",
+              "codeExample": {
+                "language": "python",
+                "insecure": "cursor.execute(f\"SELECT * FROM users WHERE id = {user_id}\")",
+                "secure": "cursor.execute(\"SELECT * FROM users WHERE id = ?\", (user_id,))"
+              }
+            },
+            {
+              "phase": "Architecture",
+              "description": "Use ORM frameworks that handle parameterization automatically"
+            }
+          ]
+        },
+        {
+          "id": "command-injection",
+          "name": "OS Command Injection",
+          "description": "Execution of arbitrary OS commands via user input",
+          "cweIds": ["CWE-78"],
+          "owaspCategories": ["A03:2021"],
+          "severity": "CRITICAL",
+          "likelihood": "LOW",
+          "patterns": [
+            {
+              "regex": "exec\\s*\\(.*(?:user|input|req\\.|request)",
+              "language": "any",
+              "confidence": 90,
+              "riskScore": 10
+            },
+            {
+              "regex": "child_process\\.exec\\s*\\(",
+              "language": "javascript",
+              "confidence": 70,
+              "riskScore": 7
+            },
+            {
+              "regex": "subprocess\\.(?:call|run|Popen)\\s*\\(",
+              "language": "python",
+              "confidence": 60,
+              "riskScore": 6
+            }
+          ],
+          "mitigations": [
+            {
+              "phase": "Architecture",
+              "description": "Avoid calling OS commands; use built-in library functions instead"
+            },
+            {
+              "phase": "Implementation",
+              "description": "If OS commands are necessary, use allowlisting for input validation",
+              "codeExample": {
+                "language": "javascript",
+                "insecure": "exec(`convert ${userFile} output.png`)",
+                "secure": "execFile('convert', [validatedFile, 'output.png'])"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "authentication",
+      "name": "Authentication Vulnerabilities",
+      "description": "Weaknesses in user identity verification",
+      "strideCategory": "Spoofing",
+      "threats": [
+        {
+          "id": "weak-password",
+          "name": "Weak Password Requirements",
+          "description": "Allowing easily guessable passwords",
+          "cweIds": ["CWE-521"],
+          "owaspCategories": ["A07:2021"],
+          "severity": "MEDIUM",
+          "likelihood": "HIGH",
+          "patterns": [
+            {
+              "regex": "password\\.length\\s*[<>=]+\\s*[1-7]\\b",
+              "language": "any",
+              "confidence": 85,
+              "riskScore": 6
+            }
+          ],
+          "mitigations": [
+            {
+              "phase": "Design",
+              "description": "Implement NIST 800-63B password guidelines: minimum 8 chars, check against breached passwords"
+            }
+          ]
+        },
+        {
+          "id": "session-fixation",
+          "name": "Session Fixation",
+          "description": "Allowing an attacker to fix a user's session ID",
+          "cweIds": ["CWE-384"],
+          "owaspCategories": ["A07:2021"],
+          "severity": "HIGH",
+          "likelihood": "MEDIUM",
+          "patterns": [],
+          "mitigations": [
+            {
+              "phase": "Implementation",
+              "description": "Regenerate session ID after authentication"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "access-control",
+      "name": "Access Control Failures",
+      "description": "Improper enforcement of user permissions",
+      "strideCategory": "ElevationOfPrivilege",
+      "threats": [
+        {
+          "id": "idor",
+          "name": "Insecure Direct Object Reference",
+          "description": "Direct access to internal objects using user-supplied input",
+          "cweIds": ["CWE-639", "CWE-284"],
+          "owaspCategories": ["A01:2021"],
+          "severity": "HIGH",
+          "likelihood": "HIGH",
+          "patterns": [
+            {
+              "regex": "params\\.(id|user_id|order_id).*find\\(",
+              "language": "any",
+              "confidence": 60,
+              "riskScore": 7
+            }
+          ],
+          "mitigations": [
+            {
+              "phase": "Implementation",
+              "description": "Always verify the user has permission to access the requested resource"
+            }
+          ]
+        },
+        {
+          "id": "missing-function-auth",
+          "name": "Missing Function Level Access Control",
+          "description": "APIs/functions accessible without proper authorization",
+          "cweIds": ["CWE-285"],
+          "owaspCategories": ["A01:2021"],
+          "severity": "CRITICAL",
+          "likelihood": "MEDIUM",
+          "patterns": [],
+          "mitigations": [
+            {
+              "phase": "Architecture",
+              "description": "Implement deny-by-default access control at API gateway level"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "csrf",
+      "name": "Cross-Site Request Forgery",
+      "description": "Forcing users to execute unwanted actions",
+      "strideCategory": "Tampering",
+      "threats": [
+        {
+          "id": "csrf-missing-token",
+          "name": "Missing CSRF Protection",
+          "description": "State-changing operations without CSRF tokens",
+          "cweIds": ["CWE-352"],
+          "owaspCategories": ["A01:2021"],
+          "severity": "MEDIUM",
+          "likelihood": "MEDIUM",
+          "patterns": [
+            {
+              "regex": "app\\.(post|put|delete|patch)\\s*\\([^,]+,\\s*(?!.*csrf)",
+              "language": "javascript",
+              "confidence": 50,
+              "riskScore": 5
+            }
+          ],
+          "mitigations": [
+            {
+              "phase": "Implementation",
+              "description": "Use anti-CSRF tokens for all state-changing operations"
+            },
+            {
+              "phase": "Implementation",
+              "description": "Set SameSite cookie attribute to Lax or Strict"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "securityControls": [
+    {
+      "id": "csp",
+      "name": "Content Security Policy",
+      "description": "HTTP header to prevent XSS and data injection attacks",
+      "category": "Preventive",
+      "implementation": "Set strict CSP headers: default-src 'self'; script-src 'self' 'nonce-{random}';"
+    },
+    {
+      "id": "https",
+      "name": "HTTPS Everywhere",
+      "description": "Encrypt all traffic with TLS",
+      "category": "Preventive",
+      "implementation": "Enable HSTS, redirect HTTP to HTTPS, use secure cookies"
+    },
+    {
+      "id": "waf",
+      "name": "Web Application Firewall",
+      "description": "Filter malicious requests",
+      "category": "Preventive",
+      "implementation": "Deploy WAF (Cloudflare, AWS WAF, ModSecurity) with OWASP Core Rule Set"
+    },
+    {
+      "id": "rate-limiting",
+      "name": "Rate Limiting",
+      "description": "Prevent abuse and brute force attacks",
+      "category": "Preventive",
+      "implementation": "Implement per-IP and per-user rate limits on sensitive endpoints"
+    }
+  ],
+
+  "testingGuidelines": [
+    {
+      "category": "Injection Testing",
+      "testCases": [
+        "Test XSS payloads in all input fields",
+        "Test SQL injection with ' OR '1'='1 variants",
+        "Test command injection with ; ls -la payloads"
+      ],
+      "tools": ["OWASP ZAP", "Burp Suite", "sqlmap", "XSStrike"]
+    },
+    {
+      "category": "Authentication Testing",
+      "testCases": [
+        "Test password complexity requirements",
+        "Test account lockout after failed attempts",
+        "Test session timeout behavior"
+      ],
+      "tools": ["Hydra", "Medusa", "Burp Intruder"]
+    },
+    {
+      "category": "Authorization Testing",
+      "testCases": [
+        "Test IDOR by modifying object IDs",
+        "Test horizontal privilege escalation",
+        "Test vertical privilege escalation"
+      ],
+      "tools": ["Autorize (Burp extension)", "AuthMatrix"]
+    }
+  ]
+}

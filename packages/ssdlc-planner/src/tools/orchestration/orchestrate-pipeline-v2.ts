@@ -41,7 +41,7 @@ export interface PhaseDefinition {
   role: string;
   tool_name: string;
   tool_input: Record<string, unknown>;
-  depends_on: string | null; // Which phase output to use as input
+  depends_on: string[] | null; // Which phases this depends on
   expected_output: {
     description: string;
     required_fields: string[];
@@ -66,6 +66,15 @@ export interface OrchestrationPlan {
     pseudocode: string;
     testing: string;
     overall: string;
+  };
+  quality_gates: {
+    phase_1: string[];
+    phase_2: string[];
+    phase_3: string[];
+    phase_4: string[];
+    phase_5: string[];
+    phase_6: string[];
+    phase_7: string[];
   };
   success_criteria: string[];
 }
@@ -100,6 +109,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
         role: 'Business Analyst',
         tool_name: 'ba_analyze_requirements',
         tool_input: {
+          project_name: input.project_name,
           project_description: input.project_description,
           business_goals: input.business_goals,
           stakeholders: input.stakeholders || [
@@ -147,7 +157,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
             ...(input.compliance_requirements || [])
           ]
         },
-        depends_on: 'Phase 1 - BA Output',
+        depends_on: ['Phase 1'],
         expected_output: {
           description: 'System architecture with components, trust boundaries, data flows, and Mermaid diagram',
           required_fields: [
@@ -182,7 +192,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
           tech_stack: input.tech_stack,
           compliance_requirements: input.compliance_requirements || []
         },
-        depends_on: 'Phase 2 - Architecture Output',
+        depends_on: ['Phase 2'],
         expected_output: {
           description: 'STRIDE analysis with threats, mitigations, and CVE mappings',
           required_fields: [
@@ -216,7 +226,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
           language: input.tech_stack[0] || 'python',
           security_considerations: '{{PHASE_3_OUTPUT.relevant_threats}}'
         },
-        depends_on: 'Phase 2 - Architecture + Phase 3 - Threats',
+        depends_on: ['Phase 2', 'Phase 3'],
         expected_output: {
           description: 'Pseudocode for critical functions with security annotations',
           required_fields: [
@@ -250,7 +260,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
           threats: '{{PHASE_3_OUTPUT.threats}}',
           tech_stack: input.tech_stack
         },
-        depends_on: 'Phase 1 - BA + Phase 3 - Threats',
+        depends_on: ['Phase 1', 'Phase 3'],
         expected_output: {
           description: 'Comprehensive test cases including functional, security, and penetration tests',
           required_fields: [
@@ -285,7 +295,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
           team_size: input.team_size,
           sprint_duration: input.sprint_duration
         },
-        depends_on: 'Phase 1 - BA + Phase 2 - Architecture',
+        depends_on: ['Phase 1', 'Phase 2', 'Phase 4'],
         expected_output: {
           description: 'Sprint breakdown with story points, timeline, and resource allocation',
           required_fields: [
@@ -320,7 +330,7 @@ export async function orchestrateSSDLCPipeline(args: unknown): Promise<MCPToolRe
           repository_platform: input.repository_platform || 'github',
           security_requirements: '{{PHASE_3_OUTPUT.mitigations}}'
         },
-        depends_on: 'Phase 2 - Architecture + Phase 3 - Threats',
+        depends_on: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5', 'Phase 6'],
         expected_output: {
           description: 'CI/CD pipeline with security gates (SAST, DAST, dependency scanning)',
           required_fields: [
@@ -433,6 +443,48 @@ After completing all phases, generate a **summary report** with:
       pseudocode: '80-90% (critical security-sensitive functions)',
       testing: '85-90% (functional + security test cases)',
       overall: '85-95% (comprehensive SSDLC planning coverage)'
+    },
+
+    // =====================================================================
+    // Quality Gates (per phase)
+    // =====================================================================
+    quality_gates: {
+      phase_1: [
+        'All user stories have acceptance criteria',
+        'Security requirements mapped to compliance standards',
+        'Prioritization matrix includes security impact scores'
+      ],
+      phase_2: [
+        'All components have security boundaries defined',
+        'Data flows show encryption points',
+        'Trust boundaries clearly marked'
+      ],
+      phase_3: [
+        'All STRIDE categories analyzed',
+        'All high/critical threats have mitigations',
+        'Mitigations reference CWE/CVE where applicable'
+      ],
+      phase_4: [
+        'All critical functions have input validation',
+        'All functions have error handling',
+        'Security considerations documented inline'
+      ],
+      phase_5: [
+        'All user stories have test cases',
+        'All high/critical threats have security test cases',
+        'Penetration test plan includes OWASP Top 10'
+      ],
+      phase_6: [
+        'Security-critical stories prioritized',
+        'Story points balanced across sprints',
+        'Dependencies identified and sequenced'
+      ],
+      phase_7: [
+        'SAST scan in every PR',
+        'DAST scan before production deployment',
+        'Dependency scanning enabled',
+        'Secret scanning enabled'
+      ]
     },
 
     // =====================================================================

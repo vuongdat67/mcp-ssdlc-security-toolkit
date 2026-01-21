@@ -1,0 +1,88 @@
+# MCP SSDLC Security Toolkit - Docker Compose
+# Production configuration
+
+services:
+  # ==========================================================================
+  # MCP SSDLC Planner Server
+  # ==========================================================================
+  mcp-ssdlc-planner:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: production
+    container_name: mcp-ssdlc-planner
+    image: mcp-ssdlc-planner:latest
+    restart: unless-stopped
+    
+    # MCP uses stdio, so we need to keep stdin open
+    stdin_open: true
+    tty: true
+    
+    volumes:
+      # Persist security database
+      - security-db:/app/packages/security-kb/data
+      # Mount domain configs (optional - for custom domains)
+      - ./config/domains:/app/config/domains:ro
+    
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+    
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('ok')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================================================
+  # Optional: Metrics & Monitoring (Prometheus + Grafana)
+  # ==========================================================================
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+
+volumes:
+  security-db:
+    driver: local
+  # prometheus-data:
+  # grafana-data:
+
+networks:
+  default:
+    name: mcp-ssdlc-network
+    driver: bridge

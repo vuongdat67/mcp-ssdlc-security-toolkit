@@ -1,0 +1,67 @@
+# MCP SSDLC Security Toolkit - Development Docker Compose
+# For local development with hot reloading
+
+services:
+  # ==========================================================================
+  # Development Server with Hot Reload
+  # ==========================================================================
+  mcp-ssdlc-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: mcp-ssdlc-dev
+    image: mcp-ssdlc-planner:dev
+    
+    stdin_open: true
+    tty: true
+    
+    volumes:
+      # Mount source code for hot reloading
+      - ../packages:/app/packages
+      - ../config:/app/config
+      - ../data:/app/data
+      # Exclude node_modules (use container's modules)
+      - /app/node_modules
+      - /app/packages/core/node_modules
+      - /app/packages/security-kb/node_modules
+      - /app/packages/ssdlc-planner/node_modules
+    
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    
+    # Debug port
+    ports:
+      - "9229:9229"
+    
+    command: ["pnpm", "dev"]
+
+  # ==========================================================================
+  # Test Runner
+  # ==========================================================================
+  mcp-ssdlc-test:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: mcp-ssdlc-test
+    image: mcp-ssdlc-planner:test
+    
+    volumes:
+      - ../packages:/app/packages
+      - ../config:/app/config
+      - /app/node_modules
+    
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    
+    command: ["pnpm", "test"]
+    
+    profiles:
+      - test
+
+networks:
+  default:
+    name: mcp-ssdlc-dev-network

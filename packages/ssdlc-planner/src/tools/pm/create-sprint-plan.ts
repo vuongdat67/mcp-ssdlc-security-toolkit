@@ -9,6 +9,25 @@ import { createLogger } from "@mcp-ssdlc/core";
 
 const logger = createLogger("pm-create-sprint-plan");
 
+// Priority normalization helper - accepts P0/P1/P2/P3 or High/Medium/Low/Critical
+const normalizePriority = (priority: string): "P0" | "P1" | "P2" | "P3" => {
+  const normalized = priority.toLowerCase().trim();
+  const mapping: Record<string, "P0" | "P1" | "P2" | "P3"> = {
+    // Standard formats
+    'p0': 'P0', 'p1': 'P1', 'p2': 'P2', 'p3': 'P3',
+    // Common alternatives
+    'critical': 'P0', 'high': 'P0', 'medium': 'P1', 'low': 'P2', 'lowest': 'P3',
+    // Numbered formats
+    '0': 'P0', '1': 'P1', '2': 'P2', '3': 'P3',
+    // Word formats
+    'urgent': 'P0', 'normal': 'P1', 'minor': 'P2', 'trivial': 'P3',
+  };
+  return mapping[normalized] || 'P2'; // Default to P2 if unknown
+};
+
+// Flexible priority schema that accepts multiple formats
+const FlexiblePrioritySchema = z.string().transform(normalizePriority);
+
 // Make all fields optional with defaults for standalone usage
 const CreateSprintPlanSchema = z.object({
   project_name: z.string().optional().default("Secure Application"),
@@ -17,7 +36,7 @@ const CreateSprintPlanSchema = z.object({
   user_stories: z.array(z.object({
     id: z.string(),
     title: z.string(),
-    priority: z.enum(["P0", "P1", "P2", "P3"]),
+    priority: FlexiblePrioritySchema,
     story_points: z.number().optional(),
   })).optional().default([
     { id: "US-001", title: "User Authentication", priority: "P0", story_points: 8 },

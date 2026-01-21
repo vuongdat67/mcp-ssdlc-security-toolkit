@@ -10,7 +10,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/mcp-ssdlc-security-toolkit
+git clone https://github.com/vuongdat67/mcp-ssdlc-security-toolkit
 cd mcp-ssdlc-security-toolkit
 
 # Install dependencies
