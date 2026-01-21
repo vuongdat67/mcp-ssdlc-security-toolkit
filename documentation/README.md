@@ -23,7 +23,9 @@ MCP SSDLC Security Toolkit is a Model Context Protocol (MCP) server system desig
 - **DevOps Engineer**: CI/CD pipeline with security gates
 - **Project Manager**: Sprint planning with security priorities
 
-### 13 MCP Tools Available
+### 17 MCP Tools Available
+
+#### SSDLC Planning Tools (13)
 | Tool | Role | Description |
 |------|------|-------------|
 | `ba_analyze_requirements` | BA | Analyze requirements and create user stories |
@@ -39,6 +41,14 @@ MCP SSDLC Security Toolkit is a Model Context Protocol (MCP) server system desig
 | `generate_secure_code` | Coding | Generate secure code from requirements |
 | `review_file` | Security | Review file for security vulnerabilities |
 | `suggest_fix` | Security | Suggest fixes for security issues |
+
+#### Workspace Diagnostic Tools (4)
+| Tool | Description |
+|------|-------------|
+| `workspace_snapshot` | Creates complete workspace structure snapshot with .gitignore awareness |
+| `environment_diagnostics` | Runs diagnostics on Node.js, Git, Python, PATH, build setup |
+| `validate_path` | Validates file/directory paths with similar path suggestions |
+| `run_diagnostic_playbook` | Runs predefined diagnostic playbooks (node-setup, build-check, path-debug, env-verify) |
 
 ## Installation
 

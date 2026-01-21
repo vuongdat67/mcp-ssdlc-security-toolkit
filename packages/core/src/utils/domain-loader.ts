@@ -219,7 +219,7 @@ function parseMarkdown(content: string): unknown {
   // Extract metadata table
   const metadataSection = content.match(/## Metadata[\s\S]*?\|[\s\S]*?\|([\s\S]*?)(?=\n---|\n##|$)/);
   if (metadataSection) {
-    const langMatch = metadataSection[1].match(/Languages[^\|]*\|\s*([^\|]+)/i);
+    const langMatch = metadataSection[1].match(/Languages[^|]*\|\s*([^|]+)/i);
     if (langMatch) {
       result.languages = langMatch[1].split(',').map(s => s.trim()).filter(Boolean);
     }
@@ -258,7 +258,7 @@ export class DomainLoader {
           const domain = await this.loadFile(join(this.domainsPath, file));
           if (domain) {
             this.domains.set(domain.id, domain);
-            console.log(`[DomainLoader] Loaded domain: ${domain.id} (${domain.name})`);
+            // Domain loaded successfully
           }
         } catch (error) {
           console.error(`[DomainLoader] Failed to load ${file}:`, error);
@@ -266,7 +266,7 @@ export class DomainLoader {
       }
     }
 
-    console.log(`[DomainLoader] Loaded ${this.domains.size} domains`);
+    // Domains loading complete
   }
 
   /**

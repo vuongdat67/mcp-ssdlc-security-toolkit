@@ -23,6 +23,7 @@ import { registerDevOpsTools } from "./tools/devops.js";
 import { registerProjectManagementTools } from "./tools/project-management.js";
 import { registerCodingTools } from "./tools/coding.js";
 import { orchestrateSSDLCPipeline } from "./tools/orchestration/orchestrate-pipeline-v2.js";
+import { registerWorkspaceDiagnosticTools } from "./tools/workspace/index.js";
 
 const logger = createLogger("MCP-SSDLC-Planner");
 
@@ -54,6 +55,7 @@ async function main(): Promise<void> {
   registerDevOpsTools(tools);
   registerProjectManagementTools(tools);
   registerCodingTools(tools);
+  registerWorkspaceDiagnosticTools(tools);
 
   // Register orchestration tool (v2 - plan generator)
   tools.set("orchestrate_ssdlc_pipeline", async (input: unknown) => {
@@ -61,7 +63,7 @@ async function main(): Promise<void> {
     return orchestrateSSDLCPipeline(input);
   });
 
-  logger.info(`Registered ${tools.size} tools across 6 roles + orchestration`);
+  logger.info(`Registered ${tools.size} tools across 7 roles + orchestration + diagnostics`);
 
   // Handle tool listing
   server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -155,6 +157,11 @@ function getToolDescription(name: string): string {
     generate_secure_code: "Generate secure code implementation from requirements with security patterns",
     review_file: "Review an entire file for security vulnerabilities with line-by-line analysis",
     suggest_fix: "Generate fix suggestions for security vulnerabilities with code examples",
+    // Workspace diagnostic tools
+    workspace_snapshot: "Creates a complete snapshot of workspace structure, build system, and environment. Respects .gitignore.",
+    environment_diagnostics: "Runs diagnostics on development environment: Node.js, Git, Python, PATH, and build setup.",
+    validate_path: "Validates a file or directory path. Checks existence, accessibility, and suggests similar paths if not found.",
+    run_diagnostic_playbook: "Runs a predefined diagnostic playbook: node-setup, build-check, path-debug, env-verify.",
   };
 
   return descriptions[name] || "No description available";
@@ -266,6 +273,49 @@ function getToolInputSchema(name: string): object {
         team_velocity: { type: "number", description: "Story points per sprint (optional)" },
       },
       required: [],
+    },
+    // Workspace diagnostic tools
+    workspace_snapshot: {
+      type: "object",
+      properties: {
+        rootPath: { type: "string", description: "Root path to analyze (defaults to cwd)" },
+        maxDepth: { type: "number", description: "Maximum directory depth (default: 5)" },
+        includeHidden: { type: "boolean", description: "Include hidden files (default: false)" },
+        respectGitignore: { type: "boolean", description: "Respect .gitignore rules (default: true)" },
+      },
+      required: [],
+    },
+    environment_diagnostics: {
+      type: "object",
+      properties: {
+        categories: { 
+          type: "array", 
+          items: { type: "string", enum: ["node", "python", "git", "build", "path", "all"] },
+          description: "Categories to diagnose (default: ['all'])" 
+        },
+      },
+      required: [],
+    },
+    validate_path: {
+      type: "object",
+      properties: {
+        targetPath: { type: "string", description: "Path to validate" },
+        basePath: { type: "string", description: "Base path for relative resolution" },
+        findSimilar: { type: "boolean", description: "Find similar paths if not found (default: true)" },
+      },
+      required: ["targetPath"],
+    },
+    run_diagnostic_playbook: {
+      type: "object",
+      properties: {
+        playbook: { 
+          type: "string", 
+          enum: ["node-setup", "build-check", "path-debug", "env-verify"],
+          description: "Diagnostic playbook to run" 
+        },
+        workspacePath: { type: "string", description: "Workspace path" },
+      },
+      required: ["playbook"],
     },
   };
 
