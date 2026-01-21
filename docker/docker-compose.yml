@@ -22,7 +22,7 @@ services:
       # Persist security database
       - security-db:/app/packages/security-kb/data
       # Mount domain configs (optional - for custom domains)
-      - ./config/domains:/app/config/domains:ro
+      - ../config/domains:/app/config/domains:ro
     
     environment:
       - NODE_ENV=production
