@@ -1,0 +1,70 @@
+{
+  "language": "javascript",
+  "total_lines": 55,
+  "findings": [
+    {
+      "pattern": "innerHTML = userInput",
+      "line_number": 7,
+      "snippet": "reviewDiv.innerHTML = userInput; // VULN: XSS via innerHTML",
+      "cwe": {
+        "id": "CWE-79",
+        "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+        "severity": "High"
+      },
+      "owasp": [
+        "A03"
+      ],
+      "cvss_context": {
+        "top_cves": [
+          {
+            "cve_id": "CVE-2023-41680",
+            "cvss_score": 7.5,
+            "description": "A improper neutralization of input during web page generation ('cross-site scripting') vulnerability in Fortinet FortiSandbox 4.4.0 through 4.4.1, For...",
+            "cisa_kev": false
+          },
+          {
+            "cve_id": "CVE-2023-41681",
+            "cvss_score": 7.5,
+            "description": "A improper neutralization of input during web page generation ('cross-site scripting') vulnerability in Fortinet FortiSandbox 4.4.0 through 4.4.1, For...",
+            "cisa_kev": false
+          },
+          {
+            "cve_id": "CVE-2023-41843",
+            "cvss_score": 7.5,
+            "description": "A improper neutralization of input during web page generation ('cross-site scripting') vulnerability in Fortinet FortiSandbox 4.4.0 through 4.4.1, For...",
+            "cisa_kev": false
+          }
+        ],
+        "max_cvss": 7.5
+      },
+      "threat_context": {
+        "exploited_in_wild": false,
+        "attack_vector": "Network: Remote attacker via malicious payload in HTTP request",
+        "impact": "Code execution, data breach, system compromise",
+        "urgency": "HIGH"
+      },
+      "risk_score": 7,
+      "confidence": 0.925,
+      "confidence_breakdown": {
+        "pattern": 0.95,
+        "cwe": 1,
+        "owasp": 0.9,
+        "cve": 0.8
+      },
+      "explanation": "**Pattern**: innerHTML = userInput\n\n**Why This Is Risky**: Setting innerHTML with unsanitized user input enables Cross-Site Scripting (XSS) attacks. Attackers can inject malicious scripts that execute in other users' browsers.\n\n**CWE Context**: The product does not neutralize or incorrectly neutralizes user-controllable input before it is placed in output that is used as a web page that is served to other users.\n\n**OWASP Classification**: A03 - Injection\n\n**Real-World Evidence**: 5 documented CVEs with CVSS 4.0+\n\n"
+    }
+  ],
+  "summary": {
+    "critical": 0,
+    "high": 1,
+    "medium": 0,
+    "low": 0,
+    "total_risk_score": 7,
+    "average_confidence": 0.93
+  },
+  "scan_metadata": {
+    "patterns_checked": 8,
+    "kb_version": "CWE:969/CVE:NVD-2024",
+    "timestamp": "2026-01-21T00:11:30.798Z"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@mcp-ssdlc/ssdlc-planner",
+  "version": "1.0.0",
+  "description": "Main MCP server for SSDLC planning with role-based tools",
+  "type": "module",
+  "bin": {
+    "mcp-ssdlc-planner": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@mcp-ssdlc/core": "workspace:*",
+    "@mcp-ssdlc/security-kb": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.25.0",
+    "date-fns": "^3.3.0",
+    "handlebars": "^4.7.8",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "mcp-ssdlc-security-toolkit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP server system for automating SSDLC planning phase with 85-95% coverage",
+  "keywords": [
+    "mcp",
+    "ssdlc",
+    "security",
+    "threat-modeling",
+    "planning"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "clean": "pnpm -r clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}
