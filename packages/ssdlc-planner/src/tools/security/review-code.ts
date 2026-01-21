@@ -110,8 +110,9 @@ export async function securityReviewCode(args: CodeReviewInput): Promise<MCPTool
     };
 
     // Get recommended secure patterns from KB
-    const securePatterns = await securityKB.getSecurePatterns(args.language);
-    const recommendedPatterns = securePatterns.map(p => ({
+    // TODO: Implement getSecurePatterns in SecurityKnowledgeBase
+    const securePatterns: Array<{ name: string; description: string; code_example: string }> = [];
+    const recommendedPatterns = securePatterns.map((p: { name: string; description: string; code_example: string }) => ({
       pattern_name: p.name,
       description: p.description,
       example_code: p.code_example

@@ -170,6 +170,18 @@ export interface ToolResponse<T = unknown> {
 }
 
 /**
+ * MCP Tool Result - standard format for MCP tool handlers
+ */
+export interface MCPToolResult {
+  content: Array<{
+    type: "text" | "json" | "markdown" | "image";
+    text?: string;
+    json?: unknown;
+  }>;
+  isError?: boolean;
+}
+
+/**
  * Template context
  */
 export interface TemplateContext {

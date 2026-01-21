@@ -19,12 +19,54 @@ import { devopsDesignCICD } from '../devops/design-cicd.js';
 /**
  * Safely parse JSON output from tools
  */
-function safeParse<T>(raw: string, phase: string): T {
+function safeParse<T = Record<string, unknown>>(raw: string, phase: string): T {
   try {
-    return JSON.parse(raw);
+    return JSON.parse(raw) as T;
   } catch (error) {
     throw new Error(`${phase} returned non-JSON output: ${error}`);
   }
+}
+
+// Tool output interfaces for type safety
+interface BAOutput {
+  user_stories?: Array<{ id: string; title: string; story_points?: number; [key: string]: unknown }>;
+  non_functional_requirements?: string[];
+  acceptance_criteria?: unknown[];
+  functional_requirements?: string[];
+  data_classification?: unknown[];
+}
+
+interface ArchOutput {
+  components?: Array<{ name: string; [key: string]: unknown }>;
+  diagrams?: string[];
+  interfaces?: unknown[];
+}
+
+interface ThreatOutput {
+  threats?: Array<{ id: string; [key: string]: unknown }>;
+  risk_score?: number;
+  mitigations?: unknown[];
+  security_controls?: unknown[];
+}
+
+interface TestOutput {
+  test_cases?: unknown[];
+  test_suites?: unknown[];
+  coverage_summary?: unknown;
+}
+
+interface SprintOutput {
+  sprints?: unknown[];
+  tasks?: unknown[];
+  timeline?: string;
+}
+
+interface CicdOutput {
+  pipeline?: string;
+  stages?: string[];
+  security_gates?: unknown[];
+  platform?: string;
+  security_scans?: unknown[];
 }
 
 export interface PipelineInput {
@@ -126,7 +168,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       throw new Error('BA analysis failed to produce output');
     }
 
-    const baOutput = safeParse(baResult.content[0].text, 'BA');
+    const baOutput = safeParse<BAOutput>(baResult.content[0].text, 'BA');
     console.error(`✅ Generated ${baOutput.user_stories?.length || 0} user stories`);
 
     // ====================
@@ -146,7 +188,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       throw new Error('Architecture design failed to produce output');
     }
 
-    const archOutput = safeParse(archResult.content[0].text, 'Architecture');
+    const archOutput = safeParse<ArchOutput>(archResult.content[0].text, 'Architecture');
     console.error(`✅ Designed ${archOutput.components?.length || 0} components`);
 
     // ====================
@@ -166,7 +208,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       throw new Error('Threat modeling failed to produce output');
     }
 
-    const threatOutput = safeParse(threatResult.content[0].text, 'Threat Modeling');
+    const threatOutput = safeParse<ThreatOutput>(threatResult.content[0].text, 'Threat Modeling');
     console.error(`✅ Identified ${threatOutput.threats?.length || 0} threats with mitigations`);
 
     // ====================
@@ -217,7 +259,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       throw new Error('Test case generation failed to produce output');
     }
 
-    const testOutput = safeParse(testResult.content[0].text, 'Test Cases');
+    const testOutput = safeParse<TestOutput>(testResult.content[0].text, 'Test Cases');
     console.error(`✅ Generated ${testOutput.test_suites?.length || 0} test suites`);
 
     // ====================
@@ -237,7 +279,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       throw new Error('Sprint planning failed to produce output');
     }
 
-    const sprintOutput = safeParse(sprintResult.content[0].text, 'Sprint Planning');
+    const sprintOutput = safeParse<SprintOutput>(sprintResult.content[0].text, 'Sprint Planning');
     console.error(`✅ Created ${sprintOutput.sprints?.length || 0} sprint plan`);
 
     // ====================
@@ -258,7 +300,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       throw new Error('CI/CD design failed to produce output');
     }
 
-    const cicdOutput = safeParse(cicdResult.content[0].text, 'CI/CD Pipeline');
+    const cicdOutput = safeParse<CicdOutput>(cicdResult.content[0].text, 'CI/CD Pipeline');
     console.error(`✅ Designed CI/CD pipeline with ${cicdOutput.stages?.length || 0} stages`);
 
     // ====================
@@ -306,7 +348,7 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       threat_model: {
         threats: threatOutput.threats || [],
         mitigations: threatOutput.mitigations || [],
-        security_controls: threatOutput.security_controls || []
+        security_controls: (threatOutput.security_controls || []) as string[]
       },
       pseudocode: {
         functions: pseudocodeResults,
@@ -323,8 +365,8 @@ export async function orchestratePipeline(args: PipelineInput): Promise<MCPToolR
       },
       cicd_pipeline: {
         platform: cicdOutput.platform || args.repository_platform || 'github',
-        stages: cicdOutput.stages || [],
-        security_scans: cicdOutput.security_scans || []
+        stages: (cicdOutput.stages || []) as string[],
+        security_scans: (cicdOutput.security_scans || []) as string[]
       },
       coverage_metrics: coverageMetrics,
       execution_summary: {

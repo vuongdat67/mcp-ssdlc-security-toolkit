@@ -255,7 +255,16 @@ export async function reviewFile(input: unknown): Promise<MCPToolResult> {
   }
 
   // Scan for vulnerabilities
-  const findings: any[] = [];
+  type Finding = {
+    line_number: number;
+    line_content: string;
+    pattern: string;
+    cwe: string;
+    severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+    description: string;
+    recommendation: string;
+  };
+  const findings: Finding[] = [];
 
   for (const pattern of patterns) {
     for (let i = 0; i < lines.length; i++) {

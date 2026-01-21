@@ -32,10 +32,9 @@ export async function techleadGeneratePseudocode(args: unknown) {
     // Get relevant secure patterns from knowledge base
     const securityKB = await createSecurityKB();
     const category = detectCategory(input.description, input.function_name);
-    const patterns = securityKB.getSecurePatterns(
-      input.language === "typescript" ? "javascript" : input.language,
-      category
-    );
+    // TODO: Implement getSecurePatterns in SecurityKnowledgeBase
+    // For now, use empty array as patterns are generated inline
+    const patterns: Array<{ pattern_name: string; description: string; language: string; code_example: string; security_notes?: string[] }> = [];
     securityKB.close();
     
     // Generate function signature
@@ -88,7 +87,7 @@ ${p.code_example}
 \`\`\`
 
 **Security Notes:**
-${p.security_notes.map((n: string) => `- ${n}`).join('\n')}
+${(p.security_notes || []).map((n: string) => `- ${n}`).join('\n')}
 `).join('\n')}
 ` : ''}
 

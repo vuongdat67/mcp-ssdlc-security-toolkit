@@ -215,6 +215,7 @@ function generateAcceptanceCriteria(feature: {
   title: string;
   action: string;
   benefit: string;
+  actor?: string;
 }): string[] {
   const criteria: string[] = [];
 

@@ -15,6 +15,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { createLogger, safeParseToolArgs, JSONNormalizationError, generateJSONErrorHelp } from "@mcp-ssdlc/core";
+import { ToolMap } from "./types.js";
 import { registerBusinessAnalystTools } from "./tools/business-analyst.js";
 import { registerTechLeadTools } from "./tools/tech-lead.js";
 import { registerSecurityTools } from "./tools/security.js";
@@ -46,7 +47,7 @@ async function main(): Promise<void> {
   );
 
   // Register all role-based tools
-  const tools = new Map<string, CallableFunction>();
+  const tools: ToolMap = new Map();
 
   registerBusinessAnalystTools(tools);
   registerTechLeadTools(tools);
@@ -77,7 +78,8 @@ async function main(): Promise<void> {
   });
 
   // Handle tool execution
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  server.setRequestHandler(CallToolRequestSchema, async (request: any): Promise<{ content: Array<{ type: string; text: string }> }> => {
     const { name, arguments: args } = request.params;
 
     logger.info(`Executing tool: ${name}`);
@@ -115,7 +117,7 @@ async function main(): Promise<void> {
       logger.success(`Tool ${name} completed successfully`);
 
       // Tools already return content in the correct format
-      return result;
+      return result as { content: Array<{ type: string; text: string }> };
     } catch (error) {
       logger.error(`Tool ${name} failed`, error);
 

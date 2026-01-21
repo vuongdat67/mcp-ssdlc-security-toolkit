@@ -5,13 +5,14 @@
  */
 
 import { createLogger } from "@mcp-ssdlc/core";
+import { ToolMap } from "../types.js";
 import { securityReviewCode } from "./security/review-code.js";
 import { securityReviewCodeTool } from "./security/security-review-tool.js";
 import { threatModelArchitecture } from "./security/threat-model.js";
 
 const logger = createLogger("Security-Tools");
 
-export function registerSecurityTools(tools: Map<string, CallableFunction>): void {
+export function registerSecurityTools(tools: ToolMap): void {
   // Phase 10: STRIDE Threat Modeling (SSDLC Planning)
   tools.set("security_threat_model", async (input: unknown) => {
     logger.info("Performing STRIDE threat modeling");

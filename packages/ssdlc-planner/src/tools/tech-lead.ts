@@ -5,11 +5,12 @@
  */
 
 import { createLogger } from "@mcp-ssdlc/core";
+import { ToolMap } from "../types.js";
 import { designSystemArchitecture } from "./tech-lead/design-architecture.js";
 
 const logger = createLogger("TechLead-Tools");
 
-export function registerTechLeadTools(tools: Map<string, CallableFunction>): void {
+export function registerTechLeadTools(tools: ToolMap): void {
   // Phase 9: System architecture design
   tools.set("techlead_design_architecture", async (input: unknown) => {
     logger.info("Tech Lead: Designing system architecture");

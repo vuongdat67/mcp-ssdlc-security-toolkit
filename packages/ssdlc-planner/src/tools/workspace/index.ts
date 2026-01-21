@@ -6,6 +6,7 @@
  */
 
 import { createLogger } from "@mcp-ssdlc/core";
+import { ToolMap } from "../../types.js";
 import {
   workspaceSnapshot,
   environmentDiagnostics,
@@ -19,12 +20,10 @@ import {
 
 const logger = createLogger("workspace-diagnostics");
 
-type CallableFunction = (input: unknown) => Promise<unknown>;
-
 /**
  * Register all workspace diagnostic tools
  */
-export function registerWorkspaceDiagnosticTools(tools: Map<string, CallableFunction>): void {
+export function registerWorkspaceDiagnosticTools(tools: ToolMap): void {
   // Workspace Snapshot Tool
   tools.set("workspace_snapshot", async (input: unknown) => {
     logger.info("Creating workspace snapshot...");

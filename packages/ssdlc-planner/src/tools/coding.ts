@@ -5,13 +5,14 @@
  */
 
 import { createLogger } from "@mcp-ssdlc/core";
+import { ToolMap } from "../types.js";
 import { generateSecureCode } from "./coding/generate-secure-code.js";
 import { reviewFile } from "./coding/review-file.js";
 import { suggestFix } from "./coding/suggest-fix.js";
 
 const logger = createLogger("Coding-Tools");
 
-export function registerCodingTools(tools: Map<string, CallableFunction>): void {
+export function registerCodingTools(tools: ToolMap): void {
   // Generate secure code from requirements
   tools.set("generate_secure_code", async (input: unknown) => {
     logger.info("Generating secure code implementation");

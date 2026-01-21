@@ -10,9 +10,9 @@ import {
   createLogger,
   validate,
   UserStorySchema,
-  ProjectConfigSchema,
   Role,
 } from "@mcp-ssdlc/core";
+import { ToolMap } from "../types.js";
 import { renderTemplate } from "../utils/template-engine.js";
 
 const logger = createLogger("BA-Tools");
@@ -51,7 +51,7 @@ async function baAnalyzeRequirements(input: unknown) {
   );
 
   // Create prioritization matrix
-  const prioritization = prioritizeFeatures(features, business_goals);
+  const prioritization = prioritizeFeatures(features, business_goals || []);
 
   const result = {
     role: Role.BusinessAnalyst,
@@ -234,7 +234,7 @@ function generateValueProposition(feature: string, target_users: number): string
 /**
  * Register Business Analyst tools
  */
-export function registerBusinessAnalystTools(tools: Map<string, CallableFunction>): void {
+export function registerBusinessAnalystTools(tools: ToolMap): void {
   // Phase 9: Requirements analysis with security focus  
   tools.set("ba_analyze_requirements_security", async (input: unknown) => {
     const { baAnalyzeRequirements } = await import("./requirements/analyze-requirements.js");
