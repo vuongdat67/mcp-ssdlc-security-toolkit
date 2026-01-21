@@ -213,6 +213,7 @@ jobs:
           file: ./docker/Dockerfile
           target: production
           push: false
+          load: true
           tags: mcp-ssdlc-planner:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
